@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <title>Expense Tracker</title>
+    <script>
+        // Client-side validation for Amount field
+        function validateAmount() {
+            var amountInput = document.getElementById('amount');
+            var amountValue = amountInput.value.trim();
+
+            // Check if the entered value is a valid number
+            if (isNaN(amountValue) || amountValue === "") {
+                alert("Please enter a valid number for the Amount.");
+                amountInput.value = ""; // Clear the input field
+                amountInput.focus(); // Set focus back to the Amount field
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <ul class="navbar-nav">
+    {% if 'user_id' in session %}
+        <li class="nav-item">
+            <a class="nav-link" href="/logout">Logout</a>
+        </li>
+    {% else %}
+        <li class="nav-item">
+            <a class="nav-link" href="/login">Login</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/register">Register</a>
+        </li>
+    {% endif %}
+</ul>
+    <div class="container mt-5">
+        <h1 class="text-center">Expense Tracker</h1>
+        <form action="/log_expense" method="post" class="mt-3" onsubmit="return validateAmount()">
+            <div class="form-group">
+                <label for="amount">Amount:</label>
+                <input type="text" id="amount" name="amount" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="category">Category:</label>
+                <input type="text" id="category" name="category" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <input type="text" id="description" name="description" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-success">Log Expense</button>
+        </form>
+
+        <h2 class="mt-5">Options:</h2>
+        <ul class="list-group">
+            <li class="list-group-item"><a href="/view_total_expense" class="btn btn-info btn-block">View Total Expense</a></li>
+            <li class="list-group-item"><a href="/view_expense_distribution" class="btn btn-warning btn-block">View Expense Distribution</a></li>
+            <li class="list-group-item"><a href="/export_csv" class="btn btn-success btn-block">Export to CSV</a></li>
+        </ul>
+    </div>
+</body>
+</html>

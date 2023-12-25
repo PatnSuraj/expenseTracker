@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Distribution</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5 text-center">
+        <h2>Expense Distribution</h2>
+        {% if chart %}
+            <img src="{{ url_for('static', filename='expense_distribution.png') }}" alt="Expense Distribution Chart" class="img-fluid">
+        {% else %}
+            <p>No expenses logged yet.</p>
+        {% endif %}
+        <a href="/" class="btn btn-primary mt-3">Go Back</a>
+    </div>
+</body>
+</html>
