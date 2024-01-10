@@ -13,7 +13,7 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 # Connect to SQLite database
-conn = sqlite3.connect('expense_tracker.db', check_same_thread=False)
+conn = sqlite3.connect('D:\Downloads\expense_tracker\expense_tracker.db', check_same_thread=False)
 cursor = conn.cursor()
 
 # Create expenses table if not exists
@@ -37,7 +37,8 @@ def create_expenses_table(cursor):
             FOREIGN KEY (user_id) REFERENCES user_profiles (id)
         )
     ''')
-# conn.commit()
+conn.commit()
+conn.close()
 
 def create_user_profile(username, password):
     cursor.execute('INSERT INTO user_profiles (username, password) VALUES (?, ?)', (username, password))
@@ -121,7 +122,13 @@ def export_csv():
     
 @app.route('/')
 def index():
-    return render_template('index.html')
+    username = None 
+    if 'user_id' in session:
+        user_id = session['user_id']
+        cursor.execute('SELECT username FROM user_profiles WHERE id=?', (user_id,))
+        username = cursor.fetchone()[0]
+    
+    return render_template('index.html', username=username)
 
 @app.route('/log_expense', methods=['POST'])
 def log_expense():
@@ -145,9 +152,20 @@ def get_all_expenses():
 @app.route('/view_total_expense')
 def view_total_expense():
     expenses = get_all_expenses()
+
+    # Filter and sort parameters from the request
+    filter_amount = request.args.get('filter_amount', type=float)
+    sort_order = request.args.get('sort_order', 'asc')
+
+    # Filter expenses based on amount
+    if filter_amount is not None:
+        expenses = [expense for expense in expenses if expense[1] == filter_amount]
+
+    # Sort expenses based on amount
+    expenses.sort(key=lambda x: x[1], reverse=(sort_order == 'desc'))
+
     total_expense = get_total_expense()
     return render_template('total_expense.html', total_expense=total_expense, expenses=expenses)
-
 
 @app.route('/view_expense_distribution')
 def view_expense_distribution():
@@ -191,20 +209,21 @@ def logout():
     session.pop('user_id', None)
     return redirect(url_for('index'))
 
+@app.route('/change_password')
+def change_password():
+    return render_template('change_password.html')
+
 if __name__ == '__main__':
-    conn = sqlite3.connect('expense_tracker.db', check_same_thread=False)
-    cursor = conn.cursor()
+    with app.app_context():
 
-    # Create expenses table if not exists
-    cursor.execute('DROP TABLE IF EXISTS expenses')
-    create_expenses_table(cursor)
+        conn = sqlite3.connect('expense_tracker.db', check_same_thread=False)
+        cursor = conn.cursor()
 
-    # Clear total expenses on startup
-    cursor.execute('DELETE FROM expenses')
-    cursor.execute('DELETE FROM sqlite_sequence WHERE name="expenses"')
-    conn.commit()
+        create_expenses_table(cursor)
 
-    app.run(debug=True)
+        conn.commit()
+
+        app.run(debug=True)
 
 # Close the database connection when the program exits
 conn.close()

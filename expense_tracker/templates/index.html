@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <title>Expense Tracker</title>
     <script>
         // Client-side validation for Amount field
@@ -15,8 +18,8 @@
             // Check if the entered value is a valid number
             if (isNaN(amountValue) || amountValue === "") {
                 alert("Please enter a valid number for the Amount.");
-                amountInput.value = ""; // Clear the input field
-                amountInput.focus(); // Set focus back to the Amount field
+                amountInput.value = "";
+                amountInput.focus();
                 return false;
             }
 
@@ -25,21 +28,38 @@
     </script>
 </head>
 <body>
-    <ul class="navbar-nav">
-    {% if 'user_id' in session %}
-        <li class="nav-item">
-            <a class="nav-link" href="/logout">Logout</a>
-        </li>
-    {% else %}
-        <li class="nav-item">
-            <a class="nav-link" href="/login">Login</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/register">Register</a>
-        </li>
-    {% endif %}
-</ul>
     <div class="container mt-5">
+        <div class="navbar">
+            <ul class="navbar-nav ml-auto">
+                {% if 'user_id' in session %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Profile
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            {% if username %}
+                                <p class="dropdown-item">User: {{ username }}</p>
+                                <div class="dropdown-divider"></div>
+                                <!-- <a class="dropdown-item" href="{{ url_for('change_password') }}">Change Password</a> -->
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+                            {% else %}
+                                <a class="dropdown-item" href="/login">Login</a>
+                                <a class="dropdown-item" href="/register">Register</a>
+                            {% endif %}
+                        </div>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/register">Register</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+
         <h1 class="text-center">Expense Tracker</h1>
         <form action="/log_expense" method="post" class="mt-3" onsubmit="return validateAmount()">
             <div class="form-group">
